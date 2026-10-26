@@ -20,3 +20,9 @@ node_modules/
 !.vscode/extensions.json
 .idea/
 *.log
+
+# SSH keys / credentials (never commit)
+gittoken
+gittoken.pub
+*.pem
+id_*
