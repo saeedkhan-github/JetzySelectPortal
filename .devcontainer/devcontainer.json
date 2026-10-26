@@ -1,0 +1,1 @@
+{"customizations":{"vscode":{"extensions":["ms-playwright.playwright"]}},"image":"mcr.microsoft.com/playwright:v1.59.0-noble","name":"Playwright (Docker)","postCreateCommand":"npm ci"}

@@ -1,0 +1,17 @@
+# Playwright dev environment in Docker.
+# Your project folder is mounted live into the container (- .:/work),
+# so code you edit in VS Code on your Mac runs inside Docker instantly.
+# No image rebuilds for code changes — the image only changes when
+# the Playwright version (tag) changes. Keep the tag == @playwright/test version.
+services:
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.59.0-noble
+    volumes:
+      - .:/work
+    working_dir: /work
+    ipc: host
+    tty: true
+    stdin_open: true
+    ports:
+      - "9323:9323"   # HTML report viewer (npx playwright show-report --host 0.0.0.0)
+    command: sleep infinity

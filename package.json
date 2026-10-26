@@ -1,0 +1,19 @@
+{
+  "description": "Playwright test framework running in Docker (works on macOS 13.5+)",
+  "devDependencies": {
+    "@playwright/cli": "^0.1.22",
+    "@playwright/test": "1.59.0",
+    "@types/node": "^22.0.0"
+  },
+  "name": "playwright-docker-starter",
+  "private": true,
+  "scripts": {
+    "report": "playwright show-report",
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:ui": "playwright test --ui --project=chromium",
+    "test:staging": "TEST_ENV=staging playwright test",
+    "test:prod": "TEST_ENV=production playwright test"
+  },
+  "version": "1.0.0"
+}

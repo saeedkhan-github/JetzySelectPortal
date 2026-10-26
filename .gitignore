@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Playwright output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+.playwright/
+# playwright-cli page snapshots and console logs
+.playwright-cli/
+
+# Env & secrets (.env.staging / .env.production are committed: they only hold public BASE_URLs)
+.env
+.env.*.local
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
