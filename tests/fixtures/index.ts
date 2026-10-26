@@ -55,6 +55,13 @@ export async function payWithTestCard(page: Page, testCard: TestCard) {
   await page.locator('#cardExpiry').fill(testCard.expiry);
   await page.locator('#cardCvc').fill(testCard.cvc);
   await page.locator('#billingName').fill(testCard.name);
+  // Checkout defaults the country from the visitor's IP (US on GitHub runners, which adds a required ZIP),
+  // so pin it to keep the form identical locally and on CI.
+  await page.getByRole('combobox', { name: 'Country or region' }).selectOption('US');
+  await page.getByRole('textbox', { name: 'ZIP' }).fill('10001');
+  // "Save my information with Link" makes a phone number required; opt out.
+  const saveWithLink = page.getByRole('checkbox', { name: /Save my information/ });
+  if (await saveWithLink.isVisible() && await saveWithLink.isChecked()) await saveWithLink.uncheck();
   await page.getByTestId('hosted-payment-submit-button').click();
 
   await expect(page.getByRole('heading', { name: 'Welcome to Jetzy' })).toBeVisible({ timeout: 90_000 });
