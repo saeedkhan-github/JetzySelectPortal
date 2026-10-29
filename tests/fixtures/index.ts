@@ -66,6 +66,8 @@ export async function payWithTestCard(page: Page, testCard: TestCard) {
 
   await expect(page.getByRole('heading', { name: 'Welcome to Jetzy' })).toBeVisible({ timeout: 90_000 });
   await page.getByRole('link', { name: 'Back to plans' }).click();
+  // Leave /app/payments/confirm before callers assert on plan cards (Firefox can take >5s here).
+  await expect(page).toHaveURL(/\/app(\?.*)?$/, { timeout: 30_000 });
 }
 
 export { expect };

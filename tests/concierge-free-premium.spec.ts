@@ -4,7 +4,6 @@ import { test, expect, planCard, signUp, payWithTestCard } from './fixtures';
 // so Premium can no longer be bought and the Concierge subscription can be cancelled.
 // Creates a real account + test-mode subscription, so it only runs against staging.
 
-test.skip(({ browserName }) => browserName !== 'chromium', 'E2E signup runs on chromium only');
 test.skip((process.env.TEST_ENV ?? 'staging') !== 'staging', 'Stripe test cards only work on staging');
 
 for (const period of ['Monthly', 'Annual'] as const) {
