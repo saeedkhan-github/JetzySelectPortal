@@ -3,7 +3,6 @@ import { test, expect, planCard, signUp, payWithTestCard } from './fixtures';
 // E2E: Select Hotels free trial -> sign up -> Stripe checkout -> plan state after purchase.
 // Creates a real account + test-mode subscription, so it only runs against staging.
 
-test.skip(({ browserName }) => browserName !== 'chromium', 'E2E signup runs on chromium only');
 test.skip((process.env.TEST_ENV ?? 'staging') !== 'staging', 'Stripe test cards only work on staging');
 
 test('Select Hotels trial: sign up, pay with test card, see current plan', async ({ page, testCard, newUser }) => {

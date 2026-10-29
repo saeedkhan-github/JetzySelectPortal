@@ -17,7 +17,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     # Same Docker image as local dev -> local results == CI results (Node is preinstalled).
     container:
       image: mcr.microsoft.com/playwright:v1.59.0-noble

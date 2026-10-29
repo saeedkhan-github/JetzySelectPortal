@@ -5,8 +5,8 @@ import { test, expect, type Page } from '@playwright/test';
 
 const CARD_TITLES = ['Jetzy Basic', 'Jetzy Select Hotels', 'Jetzy Premium', 'Jetzy Select Concierge'];
 
-// Visual baselines are browser-specific; keep one set (chromium).
-test.skip(({ browserName }) => browserName !== 'chromium', 'visual baselines are chromium-only');
+// WebKit renders much slower in the Linux container, so give it 3x the test timeout.
+test.slow(({ browserName }) => browserName === 'webkit', 'WebKit is slow in Docker');
 
 // The wrapper holding all 4 cards = innermost div containing both the first and last card.
 function planCards(page: Page) {
@@ -35,6 +35,7 @@ test('plan cards – monthly (default)', async ({ page }) => {
   await expect(planCards(page)).toHaveScreenshot('plan-cards-monthly.png', {
     animations: 'disabled',
     mask: dateMask(page),
+    timeout: 15_000, // two matching screenshots in a row can take >5s on WebKit
     maxDiffPixelRatio:0.1
   });
 });
@@ -47,5 +48,6 @@ test('plan cards – annual selected on cards 2–4', async ({ page }) => {
   await expect(planCards(page)).toHaveScreenshot('plan-cards-annual.png', {
     animations: 'disabled',
     mask: dateMask(page),
+    timeout: 15_000,
   });
 });
