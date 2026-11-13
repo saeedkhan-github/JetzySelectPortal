@@ -51,18 +51,26 @@ export async function signUp(page: Page, newUser: NewUser) {
 // Pays on Stripe checkout, then returns to the plans page.
 export async function payWithTestCard(page: Page, testCard: TestCard) {
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 60_000 });
-  await page.locator('#cardNumber').fill(testCard.number);
-  await page.locator('#cardExpiry').fill(testCard.expiry);
-  await page.locator('#cardCvc').fill(testCard.cvc);
-  await page.locator('#billingName').fill(testCard.name);
+  // The whole payment form (method list, card fields, pay button) now lives in a Stripe Elements iframe.
+  const form = page.locator('iframe[title="Secure embedded form frame"]').contentFrame();
+  const cardNumber = form.locator('#payment-numberInput');
+  // Payment methods are an accordion; with more than one method (e.g. a US visitor on CI) the card
+  // fields stay collapsed until "Card" is clicked. With card as the only method it's already open.
+  const cardOption = form.locator('[data-value="card"]');
+  await expect(cardOption.or(cardNumber).first()).toBeVisible({ timeout: 30_000 });
+  if (!(await cardNumber.isVisible())) await cardOption.click();
+  await cardNumber.fill(testCard.number);
+  await form.locator('#payment-expiryInput').fill(testCard.expiry);
+  await form.locator('#payment-cvcInput').fill(testCard.cvc);
+  await form.locator('#payment-nameInput').fill(testCard.name);
   // Checkout defaults the country from the visitor's IP (US on GitHub runners, which adds a required ZIP),
   // so pin it to keep the form identical locally and on CI.
-  await page.getByRole('combobox', { name: 'Country or region' }).selectOption('US');
-  await page.getByRole('textbox', { name: 'ZIP' }).fill('10001');
-  // "Save my information with Link" makes a phone number required; opt out.
-  const saveWithLink = page.getByRole('checkbox', { name: /Save my information/ });
+  await form.locator('#payment-countryInput').selectOption('US');
+  await form.getByRole('textbox', { name: /ZIP/ }).fill('10001');
+  // "Save my information for faster checkout" (Link) makes a phone number required; opt out.
+  const saveWithLink = form.getByRole('checkbox', { name: /Save my information/ });
   if (await saveWithLink.isVisible() && await saveWithLink.isChecked()) await saveWithLink.uncheck();
-  await page.getByTestId('hosted-payment-submit-button').click();
+  await form.getByTestId('payment-form-submit-button').click();
 
   await expect(page.getByRole('heading', { name: 'Welcome to Jetzy' })).toBeVisible({ timeout: 90_000 });
   await page.getByRole('link', { name: 'Back to plans' }).click();
