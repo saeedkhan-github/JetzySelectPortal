@@ -50,14 +50,16 @@ export async function signUp(page: Page, newUser: NewUser) {
 
 // Pays on Stripe checkout, then returns to the plans page.
 export async function payWithTestCard(page: Page, testCard: TestCard) {
-  await page.waitForURL(/checkout\.stripe\.com/, { timeout: 60_000 });
+  // Wait for the URL only ('commit'): Stripe's telemetry requests can hold back the load event for
+  // a minute on a slow network. The visibility check below waits for the form itself.
+  await page.waitForURL(/checkout\.stripe\.com/, { timeout: 60_000, waitUntil: 'commit' });
   // The whole payment form (method list, card fields, pay button) now lives in a Stripe Elements iframe.
   const form = page.locator('iframe[title="Secure embedded form frame"]').contentFrame();
   const cardNumber = form.locator('#payment-numberInput');
   // Payment methods are an accordion; with more than one method (e.g. a US visitor on CI) the card
   // fields stay collapsed until "Card" is clicked. With card as the only method it's already open.
   const cardOption = form.locator('[data-value="card"]');
-  await expect(cardOption.or(cardNumber).first()).toBeVisible({ timeout: 30_000 });
+  await expect(cardOption.or(cardNumber).first()).toBeVisible({ timeout: 60_000 });
   if (!(await cardNumber.isVisible())) await cardOption.click();
   await cardNumber.fill(testCard.number);
   await form.locator('#payment-expiryInput').fill(testCard.expiry);

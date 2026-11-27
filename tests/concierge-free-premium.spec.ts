@@ -20,16 +20,18 @@ for (const period of ['Monthly', 'Annual'] as const) {
     await payWithTestCard(page, testCard);
 
     // Premium is included with Concierge, so it can't be started or bought separately.
-    await expect(premium().getByRole('button', { name: 'Included with Concierge' })).toBeDisabled();
+    // The plans page loads the new subscription after it renders; Firefox can take >5s for that.
+    await expect(premium().getByRole('button', { name: 'Included with Concierge' })).toBeDisabled({ timeout: 30_000 });
     await expect(premium().getByRole('button', { name: 'Start 1-month free trial' })).toHaveCount(0);
 
     // Manage Subscription lists the purchased Concierge plan with Cancel subscription to its right.
     await page.getByRole('button', { name: 'Manage Subscription' }).click();
-    await page.waitForURL(/billing\.stripe\.com/, { timeout: 60_000 });
+    // 'commit': the portal's load event can lag far behind its content (Stripe telemetry), so wait for the elements instead.
+    await page.waitForURL(/billing\.stripe\.com/, { timeout: 60_000, waitUntil: 'commit' });
     // Stripe portal names the product e.g. "Concierge Annual New".
     const purchased = page.getByText(new RegExp(`^Concierge ${period}`));
     const cancel = page.getByRole('link', { name: 'Cancel subscription' });
-    await expect(purchased).toBeVisible({ timeout: 30_000 });
+    await expect(purchased).toBeVisible({ timeout: 60_000 });
     await expect(cancel).toBeVisible();
     const [planBox, cancelBox] = [await purchased.boundingBox(), await cancel.boundingBox()];
     expect(cancelBox!.x).toBeGreaterThan(planBox!.x);
