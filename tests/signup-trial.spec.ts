@@ -15,7 +15,8 @@ test('Select Hotels trial: sign up, pay with test card, see current plan', async
   await signUp(page, newUser);
   await payWithTestCard(page, testCard);
 
-  await expect(page.getByRole('button', { name: /manage subscription/i }).first()).toBeVisible();
+  // The plans page loads the new subscription after it renders; Firefox can take >5s for that.
+  await expect(page.getByRole('button', { name: /manage subscription/i }).first()).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText('Subscription', { exact: true })).toBeVisible();
 
   // Select Hotels (Monthly) is now the current plan; Annual offers an upgrade.
